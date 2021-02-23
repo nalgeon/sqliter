@@ -1,0 +1,62 @@
+[
+    {
+        "code": "AZN",
+        "name": "Манаты",
+        "default": false,
+        "rate": 0.023107
+    },
+    {
+        "code": "BYR",
+        "name": "Белорусские рубли",
+        "default": false,
+        "rate": 0.034966
+    },
+    {
+        "code": "EUR",
+        "name": "Евро",
+        "default": false,
+        "rate": 0.011138
+    },
+    {
+        "code": "GEL",
+        "name": "Грузинский лари",
+        "default": false,
+        "rate": 0.0344
+    },
+    {
+        "code": "KGS",
+        "name": "Киргизский сом",
+        "default": false,
+        "rate": 1.131738
+    },
+    {
+        "code": "KZT",
+        "name": "Тенге",
+        "default": false,
+        "rate": 5.699857
+    },
+    {
+        "code": "RUR",
+        "name": "Рубли",
+        "default": true,
+        "rate": 1.0
+    },
+    {
+        "code": "UAH",
+        "name": "Гривны",
+        "default": false,
+        "rate": 0.380539
+    },
+    {
+        "code": "USD",
+        "name": "Доллары",
+        "default": false,
+        "rate": 0.013601
+    },
+    {
+        "code": "UZS",
+        "name": "Узбекский сум",
+        "default": false,
+        "rate": 142.441417
+    }
+]
