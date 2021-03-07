@@ -1,0 +1,2 @@
+create table books(book_id integer, title text, authors text, average_rating real, isbn text, isbn13 text, language_code text, num_pages integer, ratings_count integer, text_reviews_count integer, publication_date text, publisher text, author text);
+.import --csv --skip 1 books.clean.csv books
