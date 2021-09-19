@@ -71,6 +71,15 @@ ui.editor.addEventListener("keydown", (event) => {
     }
     return true;
 });
+ui.editor.addEventListener("paste", function (event) {
+    event.preventDefault();
+    // get text representation of clipboard
+    var text = (event.originalEvent || event).clipboardData.getData(
+        "text/plain"
+    );
+    // insert text manually
+    document.execCommand("insertHTML", false, text);
+});
 
 storage.load(ui.editor);
 focus();
