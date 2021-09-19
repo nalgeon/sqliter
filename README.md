@@ -1,3 +1,3 @@
-# SQLite на практике
+# Sample SQLite databeses
 
-Материалы [курса](https://stepik.org/course/90778/promo).
+This repo contains sample SQLite databases and the [sandbox](sandbox) to query them.
