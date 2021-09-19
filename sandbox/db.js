@@ -16,7 +16,7 @@ async function init(path) {
     if (path) {
         return await load(path);
     } else {
-        return await sqlite();
+        return await create();
     }
 }
 
