@@ -1,6 +1,8 @@
+// Prints SQL query result as text
+
+// asTable converts SQL query result to HTML table
 function asTable(result) {
-    const last = result[result.length - 1];
-    const [columns, values] = [last.columns, last.values];
+    const [columns, values] = [result.columns, result.values];
     var html = "<thead>" + join(columns, "th") + "</thead>";
     var rows = values.map(function (v) {
         return join(v, "td");

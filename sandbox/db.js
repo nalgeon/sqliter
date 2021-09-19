@@ -22,14 +22,31 @@ async function init(path) {
 
 async function create() {
     const SQL = await initSqlJs(CONFIG);
-    return new SQL.Database();
+    const db = new SQL.Database();
+    return new SQLite(db);
 }
 
 async function load(path) {
     const sqlPromise = initSqlJs(CONFIG);
     const dataPromise = fetch(path).then((res) => res.arrayBuffer());
     const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-    return new SQL.Database(new Uint8Array(buf));
+    const db = new SQL.Database(new Uint8Array(buf));
+    return new SQLite(db);
+}
+
+class SQLite {
+    constructor(db) {
+        this.db = db;
+    }
+
+    execute(sql) {
+        const result = this.db.exec(sql);
+        console.log(result);
+        if (!result.length) {
+            return null;
+        }
+        return result[result.length - 1];
+    }
 }
 
 const sqlite = { loadPath, init };

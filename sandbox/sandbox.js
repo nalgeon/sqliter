@@ -1,88 +1,87 @@
-import printer from "./printer.js";
+// SQL Sandbox page
+
 import sqlite from "./db.js";
 import storage from "./storage.js";
+import timeit from "./timeit.js";
 
 const messages = {
-    invite: "Run SQL query to see the results",
     empty: "The query returned nothing",
+    executing: "Executing query...",
+    invite: "Run SQL query to see the results",
+    loading: "Loading database...",
 };
 
 const ui = {
     execute: document.querySelector("#execute"),
     clear: document.querySelector("#clear"),
     editor: document.querySelector("#editor"),
-    message: document.querySelector("#message"),
+    status: document.querySelector("#status"),
     result: document.querySelector("#result"),
 };
 
-function focus() {
-    ui.editor.focus();
-    document.execCommand("selectAll", false, null);
-    document.getSelection().collapseToEnd();
-}
-
+// execute runs SQL query on the database
+// and shows results
 function execute(db, sql) {
-    if (sql === undefined) {
-        sql = ui.editor.innerText;
+    if (!sql) {
+        ui.status.info(messages.invite);
+        return;
     }
-    storage.save(sql);
     try {
-        const result = db.exec(sql);
-        showResult(result);
+        ui.status.info(messages.executing);
+        storage.save(sql);
+        timeit.start();
+        const result = db.execute(sql);
+        const elapsed = timeit.finish();
+        showResult(result, elapsed);
     } catch (exc) {
         showError(exc);
     }
 }
 
-function showResult(result) {
-    console.log(result);
-    if (result.length > 0) {
-        ui.result.innerHTML = printer.asTable(result);
-        ui.message.innerHTML = "";
+// showResult shows results and timing
+// of the SQL query execution
+function showResult(result, elapsed) {
+    ui.result.print(result);
+    if (result?.values?.length) {
+        ui.status.success(`${result.values.length} rows, took ${elapsed} ms`);
     } else {
-        ui.result.innerHTML = "";
-        ui.message.innerHTML = messages.empty;
+        ui.status.success(`Took ${elapsed} ms`);
     }
 }
 
+// showError shows an error occured
+// during SQL query execution
 function showError(exc) {
     const err = exc.toString().split("\n")[0];
-    ui.result.innerHTML = "";
-    ui.message.innerHTML = err;
+    ui.result.clear();
+    ui.status.error(err);
 }
 
+// Toolbar 'run sql' button click
 ui.execute.addEventListener("click", () => {
-    execute(db);
-    focus();
-});
-ui.clear.addEventListener("click", () => {
-    ui.editor.innerHTML = "";
-    ui.result.innerHTML = "";
-    ui.message.innerHTML = messages.invite;
-    focus();
-});
-ui.editor.addEventListener("keydown", (event) => {
-    if (
-        (event.keyCode == 10 || event.keyCode == 13) &&
-        (event.ctrlKey || event.metaKey)
-    ) {
-        execute(db);
-        return false;
-    }
-    return true;
-});
-ui.editor.addEventListener("paste", function (event) {
-    event.preventDefault();
-    // get text representation of clipboard
-    var text = (event.originalEvent || event).clipboardData.getData(
-        "text/plain"
-    );
-    // insert text manually
-    document.execCommand("insertHTML", false, text);
+    execute(db, ui.editor.value);
+    ui.editor.focus();
 });
 
+// Toolbar 'clear' button click
+ui.clear.addEventListener("click", () => {
+    ui.editor.clear();
+    ui.result.clear();
+    ui.status.info(messages.invite);
+    ui.editor.focus();
+});
+
+// SQL editor 'execute' event
+ui.editor.addEventListener("execute", (event) => {
+    execute(db, event.detail);
+});
+
+// Load last SQL query and show it in the editor
 storage.load(ui.editor);
-focus();
+ui.editor.focus();
+
+// Load existing database or create a new one
+ui.status.info(messages.loading);
 const path = sqlite.loadPath();
 const db = await sqlite.init(path);
-ui.message.innerHTML = messages.invite;
+ui.status.info(messages.invite);

@@ -20,15 +20,17 @@
             </div>
         </header>
         <section class="editor-section">
-            <div id="editor" class="editor" contenteditable></div>
+            <sql-editor id="editor" class="sql-editor"></sql-editor>
         </section>
         <section class="result-section">
-            <div id="message">Loading database...</div>
-            <table id="result" class="result"></table>
+            <sql-status id="status" class="sql-status"></sql-status>
+            <sql-result id="result" class="sql-result"></sql-result>
         </section>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/sql-wasm.js"></script>
-    <script type="module" src="db.js"></script>
+    <script type="module" src="sql-editor.js"></script>
+    <script type="module" src="sql-status.js"></script>
+    <script type="module" src="sql-result.js"></script>
     <script type="module" src="sandbox.js"></script>
 </body>
 

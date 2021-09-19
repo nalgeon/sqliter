@@ -49,7 +49,7 @@ body {
     color: #fff;
 }
 
-.editor {
+.sql-editor {
     position: relative;
     display: block;
     resize: vertical;
@@ -60,10 +60,10 @@ body {
     white-space: pre-wrap;
     font-family: var(--font-monospace);
 }
-.editor:focus {
+.sql-editor:focus {
     outline: none;
 }
-.editor::after {
+.sql-editor::after {
     position: absolute;
     right: -1px;
     bottom: -1px;
@@ -75,17 +75,36 @@ body {
     content: "Ctrl+Enter";
 }
 
-.result {
+.sql-status {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.sql-status--success::before {
+    display: inline-block;
+    width: 1rem;
+    content: "✓";
+}
+.sql-status--error::before {
+    display: inline-block;
+    width: 1rem;
+    color: red;
+    content: "✕";
+}
+
+.sql-result {
+    display: block;
+}
+.sql-result table {
     border: 1px solid #ccc;
     border-collapse: collapse;
     font-family: var(--font-monospace);
     font-size: 90%;
 }
-.result th {
+.sql-result table th {
     border-bottom: 1px solid #ccc;
     padding: 0.25rem 0.5rem;
     text-align: left;
 }
-.result td {
+.sql-result table td {
     padding: 0.25rem 0.5rem;
 }
