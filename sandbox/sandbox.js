@@ -21,38 +21,36 @@ const ui = {
     result: document.querySelector("#result"),
 };
 
-let database, dbName, dbPath;
+let database;
 
 // startFromUrl loads existing database or creates a new one
 // using location hash as database path
 async function startFromUrl() {
-    const newName = sqlite.loadName() || "new.db";
-    let newPath = sqlite.loadPath();
-    if (newPath && !newPath.startsWith("https://")) {
+    const name = sqlite.loadName() || "new.db";
+    let path = sqlite.loadPath();
+    if (path && !path.startsWith("https://")) {
         // local databases are located one level up
-        newPath = `../${newPath}`;
+        path = `../${path}`;
     }
-    start(newName, newPath);
+    start(name, path);
 }
 
 // start loads existing database or creates a new one
 // using specified database path
-async function start(newName, newPath) {
+async function start(name, path) {
     ui.result.clear();
     ui.status.info(messages.loading);
 
-    const db = await sqlite.init(newName, newPath);
+    const db = await sqlite.init(name, path);
     if (!db) {
-        ui.status.error(`Failed to load database from URL: ${dbPath}`);
+        ui.status.error(`Failed to load database from URL: ${path}`);
         return false;
     }
 
     database = db;
-    dbName = newName;
-    dbPath = newPath;
 
-    storage.load(dbName, ui.editor);
-    ui.name.innerHTML = dbName;
+    storage.load(database.name, ui.editor);
+    ui.name.innerHTML = database.name;
     ui.status.info(messages.invite);
     ui.editor.focus();
 
@@ -68,7 +66,7 @@ function execute(sql) {
     }
     try {
         ui.status.info(messages.executing);
-        storage.save(dbName, sql);
+        storage.save(database.name, sql);
         timeit.start();
         const result = database.execute(sql);
         const elapsed = timeit.finish();
@@ -111,17 +109,17 @@ ui.clear.addEventListener("click", () => {
 
 // Toolbar 'open url' button click
 ui.openUrl.addEventListener("click", () => {
-    const newPath = prompt(
+    const path = prompt(
         "Enter database file URL:",
         "https://raw.githubusercontent.com/username/repo/branch/..."
     );
-    const parts = newPath.split("/");
-    const newName = parts[parts.length - 1];
-    start(newName, newPath).then((success) => {
+    const parts = path.split("/");
+    const name = parts[parts.length - 1];
+    start(name, path).then((success) => {
         if (!success) {
             return;
         }
-        history.pushState(dbName, null, `#${dbPath}`);
+        history.pushState(database.name, null, `#${database.path}`);
     });
 });
 

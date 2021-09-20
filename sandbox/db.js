@@ -34,7 +34,7 @@ async function init(name, path) {
 async function create(name) {
     const SQL = await initSqlJs(CONFIG);
     const db = new SQL.Database();
-    return new SQLite(name, db);
+    return new SQLite(name, null, db);
 }
 
 async function load(name, path) {
@@ -50,12 +50,13 @@ async function load(name, path) {
         return null;
     }
     const db = new SQL.Database(new Uint8Array(buf));
-    return new SQLite(name, db);
+    return new SQLite(name, path, db);
 }
 
 class SQLite {
-    constructor(name, db) {
+    constructor(name, path, db) {
         this.name = name;
+        this.path = path;
         this.db = db;
     }
 
