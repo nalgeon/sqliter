@@ -32,8 +32,6 @@ body {
 }
 
 .toolbar {
-    display: inline-block;
-    margin-left: 1rem;
 }
 .toolbar button {
     border: 1px solid #008bf5;
@@ -95,6 +93,7 @@ body {
     display: block;
 }
 .sql-result table {
+    width: 100%;
     border: 1px solid #ccc;
     border-collapse: collapse;
     font-family: var(--font-monospace);
@@ -107,4 +106,15 @@ body {
 }
 .sql-result table td {
     padding: 0.25rem 0.5rem;
+}
+
+@media only screen and (min-width: 48em) {
+    .toolbar {
+        display: inline-block;
+        margin-left: 1rem;
+    }
+
+    .sql-result table {
+        width: auto;
+    }
 }

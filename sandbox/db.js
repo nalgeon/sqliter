@@ -8,19 +8,22 @@ function loadName() {
     if (!window.location.hash) {
         return "";
     }
-    return window.location.hash.slice(1);
+    const filename = window.location.hash.slice(1);
+    if (filename.startsWith("https://")) {
+        const parts = filename.split("/");
+        return parts[parts.length - 1];
+    }
+    return filename;
 }
 
 function loadPath() {
     if (!window.location.hash) {
         return null;
     }
-    const filename = window.location.hash.slice(1);
-    return `../${filename}`;
+    return window.location.hash.slice(1);
 }
 
-async function init(name) {
-    const path = loadPath();
+async function init(name, path) {
     if (path) {
         return await load(name, path);
     } else {
@@ -36,8 +39,16 @@ async function create(name) {
 
 async function load(name, path) {
     const sqlPromise = initSqlJs(CONFIG);
-    const dataPromise = fetch(path).then((res) => res.arrayBuffer());
+    const dataPromise = fetch(path).then((response) => {
+        if (!response.ok) {
+            return null;
+        }
+        return response.arrayBuffer();
+    });
     const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
+    if (!buf) {
+        return null;
+    }
     const db = new SQL.Database(new Uint8Array(buf));
     return new SQLite(name, db);
 }
@@ -50,7 +61,6 @@ class SQLite {
 
     execute(sql) {
         const result = this.db.exec(sql);
-        console.log(result);
         if (!result.length) {
             return null;
         }
@@ -58,5 +68,5 @@ class SQLite {
     }
 }
 
-const sqlite = { loadName, init };
+const sqlite = { loadName, loadPath, init };
 export default sqlite;
