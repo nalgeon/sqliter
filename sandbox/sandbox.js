@@ -28,7 +28,7 @@ function execute(db, sql) {
     }
     try {
         ui.status.info(messages.executing);
-        storage.save(sql);
+        storage.save(dbName, sql);
         timeit.start();
         const result = db.execute(sql);
         const elapsed = timeit.finish();
@@ -77,11 +77,11 @@ ui.editor.addEventListener("execute", (event) => {
 });
 
 // Load last SQL query and show it in the editor
-storage.load(ui.editor);
+const dbName = sqlite.loadName() || "new.db";
+storage.load(dbName, ui.editor);
 ui.editor.focus();
 
 // Load existing database or create a new one
 ui.status.info(messages.loading);
-const path = sqlite.loadPath();
-const db = await sqlite.init(path);
+const db = await sqlite.init(dbName);
 ui.status.info(messages.invite);

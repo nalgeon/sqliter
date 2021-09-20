@@ -4,6 +4,13 @@ const CONFIG = {
     locateFile: (file) => WASM,
 };
 
+function loadName() {
+    if (!window.location.hash) {
+        return "";
+    }
+    return window.location.hash.slice(1);
+}
+
 function loadPath() {
     if (!window.location.hash) {
         return null;
@@ -12,30 +19,32 @@ function loadPath() {
     return `../${filename}`;
 }
 
-async function init(path) {
+async function init(name) {
+    const path = loadPath();
     if (path) {
-        return await load(path);
+        return await load(name, path);
     } else {
-        return await create();
+        return await create(name);
     }
 }
 
-async function create() {
+async function create(name) {
     const SQL = await initSqlJs(CONFIG);
     const db = new SQL.Database();
-    return new SQLite(db);
+    return new SQLite(name, db);
 }
 
-async function load(path) {
+async function load(name, path) {
     const sqlPromise = initSqlJs(CONFIG);
     const dataPromise = fetch(path).then((res) => res.arrayBuffer());
     const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
     const db = new SQL.Database(new Uint8Array(buf));
-    return new SQLite(db);
+    return new SQLite(name, db);
 }
 
 class SQLite {
-    constructor(db) {
+    constructor(name, db) {
+        this.name = name;
         this.db = db;
     }
 
@@ -49,5 +58,5 @@ class SQLite {
     }
 }
 
-const sqlite = { loadPath, init };
+const sqlite = { loadName, init };
 export default sqlite;
