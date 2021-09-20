@@ -1,5 +1,7 @@
 // SQL Sandbox page
 
+import dumper from "./dumper.js";
+import gister from "./gister.js";
 import sqlite from "./db.js";
 import storage from "./storage.js";
 import timeit from "./timeit.js";
@@ -15,6 +17,7 @@ const ui = {
     execute: document.querySelector("#execute"),
     clear: document.querySelector("#clear"),
     openUrl: document.querySelector("#open-url"),
+    save: document.querySelector("#save"),
     name: document.querySelector("#db-name"),
     editor: document.querySelector("#editor"),
     status: document.querySelector("#status"),
@@ -124,6 +127,23 @@ ui.openUrl.addEventListener("click", () => {
     });
 });
 
+// Toolbar 'save' button click
+ui.save.addEventListener("click", () => {
+    const schema = dumper.toSql(database, ui.editor.value);
+    const query = ui.editor.value;
+    let promise;
+    if (!database.id) {
+        promise = gister.create(database.name, schema, query);
+    } else {
+        promise = gister.update(database.id, schema, query);
+    }
+    promise.then((resp) => {
+        database.id = resp.id;
+        const url = gister.getUrl(database.id);
+        ui.status.success(`Saved to ${url}`);
+    });
+});
+
 // Navigate back to previous database
 window.addEventListener("popstate", () => {
     startFromUrl();
@@ -134,4 +154,5 @@ ui.editor.addEventListener("execute", (event) => {
     execute(event.detail);
 });
 
+gister.loadCredentials();
 startFromUrl();

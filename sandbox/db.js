@@ -55,6 +55,7 @@ async function load(name, path) {
 
 class SQLite {
     constructor(name, path, db) {
+        this.id = null;
         this.name = name;
         this.path = path;
         this.db = db;
@@ -66,6 +67,10 @@ class SQLite {
             return null;
         }
         return result[result.length - 1];
+    }
+
+    each(sql, callback) {
+        this.db.each(sql, [], callback);
     }
 }
 
