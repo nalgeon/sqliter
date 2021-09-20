@@ -50,6 +50,7 @@ async function start(name, path) {
     database = db;
 
     storage.load(database.name, ui.editor);
+    document.title = database.name;
     ui.name.innerHTML = database.name;
     ui.status.info(messages.invite);
     ui.editor.focus();
