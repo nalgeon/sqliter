@@ -133,6 +133,14 @@ body {
     background: #008bf5;
     color: #fff;
 }
+.button-small:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+.button-small:disabled:hover {
+    background: #fff;
+    color: #008bf5;
+}
 
 .hidden {
     display: none !important;

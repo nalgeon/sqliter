@@ -129,6 +129,20 @@ async function clear() {
     history.replaceState(name, null, "./");
 }
 
+// showToolbar shows the toolbar according to settings
+function showToolbar() {
+    if (!gister.username || !gister.password) {
+        ui.toolbar.save.setAttribute("disabled", "disabled");
+        ui.toolbar.save.setAttribute(
+            "title",
+            "Set GitHub credentials in settings to enable sharing"
+        );
+    } else {
+        ui.toolbar.save.removeAttribute("disabled");
+        ui.toolbar.save.removeAttribute("title");
+    }
+}
+
 // showResult shows results and timing
 // of the SQL query execution
 function showResult(result, elapsed) {
@@ -200,4 +214,5 @@ ui.editor.addEventListener("execute", (event) => {
 });
 
 gister.loadCredentials();
+showToolbar();
 startFromCurrentUrl();
