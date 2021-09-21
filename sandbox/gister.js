@@ -11,6 +11,8 @@ class Gister {
         this.headers = Object.assign({}, HEADERS);
     }
 
+    // loadCredentials loads GitHub credentials
+    // from local storage
     loadCredentials() {
         this.username = localStorage.getItem("github.username");
         this.password = localStorage.getItem("github.token");
@@ -18,18 +20,28 @@ class Gister {
             "Basic " + btoa(this.username + ":" + this.password);
     }
 
+    // getUrl returns gist url by its id
     getUrl(id) {
         return `https://gist.github.com/${this.username}/${id}`;
     }
 
+    // get returns gist by id
     get(id) {
         const promise = fetch(`${this.url}/${id}`, {
             method: "get",
             headers: HEADERS,
-        }).then((response) => response.json());
+        })
+            .then((response) => response.json())
+            .then((response) => {
+                if (!response.files) {
+                    return null;
+                }
+                return response;
+            });
         return promise;
     }
 
+    // create creates new gist
     create(name, schema, query) {
         const data = buildData(name, schema, query);
         const promise = fetch(this.url, {
@@ -40,6 +52,7 @@ class Gister {
         return promise;
     }
 
+    // update updates existing gist
     update(id, name, schema, query) {
         const data = buildData(name, schema, query);
         const promise = fetch(`${this.url}/${id}`, {
@@ -66,5 +79,4 @@ function buildData(name, schema, query) {
 }
 
 const gister = new Gister();
-
 export default gister;

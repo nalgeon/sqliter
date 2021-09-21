@@ -1,8 +1,8 @@
 // SQL Sandbox page
 
-import dumper from "./dumper.js";
 import gister from "./gister.js";
-import sqlite from "./db.js";
+import { locator, DatabasePath } from "./locator.js";
+import sqlite from "./sqlite.js";
 import storage from "./storage.js";
 import timeit from "./timeit.js";
 
@@ -24,34 +24,33 @@ const ui = {
     result: document.querySelector("#result"),
 };
 
-const ID_PREFIX = "gist:";
-
 let database;
 
-// startFromUrl loads existing database or creates a new one
-// using location hash as database path
-async function startFromUrl() {
-    const name = sqlite.loadName() || "new.db";
-    let path = sqlite.loadPath();
-    if (path && !path.startsWith("https://") && !path.startsWith(ID_PREFIX)) {
+// startFromCurrentUrl loads existing database or creates a new one
+// using current window location as database path
+async function startFromCurrentUrl() {
+    const path = locator.path();
+    const name = locator.name(path) || "new.db";
+    if (path.type == "local") {
         // local databases are located one level up
-        path = `../${path}`;
+        path.value = `../${path.value}`;
     }
-    if (path && path.startsWith(ID_PREFIX)) {
-        const id = path.substr(ID_PREFIX.length);
-        startFromId(id);
-    } else {
-        start(name, path);
+    const success = await start(name, path);
+    if (success && path.type == "id") {
+        ui.editor.value = database.query;
     }
 }
 
-async function startFromId(id) {
-    const gist = await gister.get(id);
-    const name = gist.description;
-    await start(name, null);
-    database.id = id;
-    database.execute(gist.files["schema.sql"].content);
-    ui.editor.value = gist.files["query.sql"].content;
+// startFromUrl loads existing database
+// from specified url
+async function startFromUrl(url) {
+    const path = new DatabasePath(url);
+    const name = locator.name(path);
+    const success = await start(name, path);
+    if (!success) {
+        return;
+    }
+    history.pushState(database.name, null, `#${database.path.value}`);
 }
 
 // start loads existing database or creates a new one
@@ -60,13 +59,14 @@ async function start(name, path) {
     ui.result.clear();
     ui.status.info(messages.loading);
 
-    const db = await sqlite.init(name, path);
-    if (!db) {
-        ui.status.error(`Failed to load database from URL: ${path}`);
+    const loadedDatabase = await sqlite.init(name, path);
+    console.log(loadedDatabase);
+    if (!loadedDatabase) {
+        ui.status.error(`Failed to load database from ${path}`);
         return false;
     }
 
-    database = db;
+    database = loadedDatabase;
 
     storage.load(database.name, ui.editor);
     document.title = database.name;
@@ -96,6 +96,20 @@ function execute(sql) {
     }
 }
 
+// save persists database state and current query
+// to remote storage
+async function save() {
+    ui.status.info("Saving...");
+    ui.result.clear();
+    const savedDatabase = await sqlite.save(database, ui.editor.value);
+    if (!savedDatabase) {
+        ui.status.error("Failed to save database");
+        return;
+    }
+    database = savedDatabase;
+    showDatabase(database);
+}
+
 // showResult shows results and timing
 // of the SQL query execution
 function showResult(result, elapsed) {
@@ -115,10 +129,11 @@ function showError(exc) {
     ui.status.error(err);
 }
 
-function showSaved(id) {
-    const url = gister.getUrl(id);
+// showDatabase shows saved database information
+function showDatabase(database) {
+    const url = gister.getUrl(database.id);
     const gistUrl = `<a href="${url}" target="_blank">gist</a>`;
-    history.pushState(id, null, `#${ID_PREFIX}${id}`);
+    history.pushState(database.id, null, database.path.toHash());
     const shareUrl = `<copy-on-click href="${window.location}" class="button-small">
         copy share link</copy-on-click>`;
     ui.status.success(`Saved as ${gistUrl} ${shareUrl}`);
@@ -138,38 +153,18 @@ ui.clear.addEventListener("click", () => {
 
 // Toolbar 'open url' button click
 ui.openUrl.addEventListener("click", () => {
-    const path = prompt("Enter database file URL:", "https://path/to/database");
-    const parts = path.split("/");
-    const name = parts[parts.length - 1];
-    start(name, path).then((success) => {
-        if (!success) {
-            return;
-        }
-        history.pushState(database.name, null, `#${database.path}`);
-    });
+    const url = prompt("Enter database file URL:", "https://path/to/database");
+    startFromUrl(url);
 });
 
 // Toolbar 'save' button click
 ui.save.addEventListener("click", () => {
-    ui.status.info("Saving...");
-    ui.result.clear();
-    const schema = dumper.toSql(database, ui.editor.value);
-    const query = ui.editor.value;
-    let promise;
-    if (!database.id) {
-        promise = gister.create(database.name, schema, query);
-    } else {
-        promise = gister.update(database.id, database.name, schema, query);
-    }
-    promise.then((resp) => {
-        database.id = resp.id;
-        showSaved(database.id);
-    });
+    save();
 });
 
 // Navigate back to previous database
 window.addEventListener("popstate", () => {
-    startFromUrl();
+    startFromCurrentUrl();
 });
 
 // SQL editor 'execute' event
@@ -178,4 +173,4 @@ ui.editor.addEventListener("execute", (event) => {
 });
 
 gister.loadCredentials();
-startFromUrl();
+startFromCurrentUrl();
