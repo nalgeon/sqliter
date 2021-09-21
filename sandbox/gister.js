@@ -16,8 +16,7 @@ class Gister {
     loadCredentials() {
         this.username = localStorage.getItem("github.username");
         this.password = localStorage.getItem("github.token");
-        this.headers.Authorization =
-            "Basic " + btoa(this.username + ":" + this.password);
+        this.headers.Authorization = `Token ${this.password}`;
     }
 
     // getUrl returns gist url by its id

@@ -135,7 +135,7 @@ function showToolbar() {
         ui.toolbar.save.setAttribute("disabled", "disabled");
         ui.toolbar.save.setAttribute(
             "title",
-            "Set GitHub credentials in settings to enable sharing"
+            "Provide GitHub credentials in settings to enable sharing"
         );
     } else {
         ui.toolbar.save.removeAttribute("disabled");

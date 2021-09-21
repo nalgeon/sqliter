@@ -31,6 +31,14 @@ body {
     padding: 0.5rem 0;
 }
 
+.header h1 {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    font-size: 1.25rem;
+}
+
 .toolbar {
     margin-top: 0.5rem;
 }
@@ -38,16 +46,18 @@ body {
     vertical-align: middle;
     height: 1.5rem;
 }
+.toolbar a,
 .toolbar label {
     display: inline-block;
     vertical-align: middle;
     height: 1.5rem;
     line-height: 1.25rem;
+    text-decoration: none;
 }
 .toolbar input[type="file"] {
     display: none;
 }
-.toolbar a {
+.toolbar .help {
     display: inline-block;
     vertical-align: middle;
     width: 1rem;
@@ -110,7 +120,7 @@ body {
     border: 1px solid #ccc;
     border-collapse: collapse;
     font-family: var(--font-monospace);
-    font-size: 90%;
+    /* font-size: 90%; */
 }
 .sql-result table th {
     border-bottom: 1px solid #ccc;
