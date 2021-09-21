@@ -121,6 +121,14 @@ async function save() {
     showDatabase(database);
 }
 
+// clear swicthes to an empty database
+async function clear() {
+    const name = "new.db";
+    const path = new DatabasePath();
+    await start(name, path);
+    history.replaceState(name, null, "./");
+}
+
 // showResult shows results and timing
 // of the SQL query execution
 function showResult(result, elapsed) {
@@ -157,9 +165,7 @@ ui.toolbar.execute.addEventListener("click", () => {
 
 // Toolbar 'clear' button click
 ui.toolbar.clear.addEventListener("click", () => {
-    ui.editor.clear();
-    ui.result.clear();
-    ui.status.info(messages.invite);
+    clear();
 });
 
 // Toolbar 'open file' button click
