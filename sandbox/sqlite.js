@@ -11,6 +11,8 @@ const CONFIG = {
 async function init(name, path) {
     if (path.type == "local" || path.type == "remote") {
         return await loadUrl(name, path);
+    } else if (path.type == "binary") {
+        return await loadArrayBuffer(name, path);
     } else if (path.type == "id") {
         return await loadGist(path);
     } else {
@@ -23,6 +25,14 @@ async function init(name, path) {
 async function create(name, path) {
     const SQL = await initSqlJs(CONFIG);
     const db = new SQL.Database();
+    return new SQLite(name, path, db);
+}
+
+async function loadArrayBuffer(name, path) {
+    const SQL = await initSqlJs(CONFIG);
+    const db = new SQL.Database(new Uint8Array(path.value));
+    path.type = "empty";
+    path.value = null;
     return new SQLite(name, path, db);
 }
 
@@ -78,6 +88,8 @@ async function save(database, query) {
             return null;
         }
         database.id = response.id;
+        database.path.type = "id";
+        database.path.value = database.id;
         return database;
     });
 }

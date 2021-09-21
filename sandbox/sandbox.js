@@ -14,10 +14,13 @@ const messages = {
 };
 
 const ui = {
-    execute: document.querySelector("#execute"),
-    clear: document.querySelector("#clear"),
-    openUrl: document.querySelector("#open-url"),
-    save: document.querySelector("#save"),
+    toolbar: {
+        execute: document.querySelector("#execute"),
+        clear: document.querySelector("#clear"),
+        openFile: document.querySelector("#open-file"),
+        openUrl: document.querySelector("#open-url"),
+        save: document.querySelector("#save"),
+    },
     name: document.querySelector("#db-name"),
     editor: document.querySelector("#editor"),
     status: document.querySelector("#status"),
@@ -51,6 +54,14 @@ async function startFromUrl(url) {
         return;
     }
     history.pushState(database.name, null, `#${database.path.value}`);
+}
+
+// startFromFile loads existing database
+// from binary file
+async function startFromFile(file, contents) {
+    const path = new DatabasePath(contents);
+    const name = file.name;
+    start(name, path);
 }
 
 // start loads existing database or creates a new one
@@ -140,25 +151,35 @@ function showDatabase(database) {
 }
 
 // Toolbar 'run sql' button click
-ui.execute.addEventListener("click", () => {
+ui.toolbar.execute.addEventListener("click", () => {
     execute(ui.editor.value);
 });
 
 // Toolbar 'clear' button click
-ui.clear.addEventListener("click", () => {
+ui.toolbar.clear.addEventListener("click", () => {
     ui.editor.clear();
     ui.result.clear();
     ui.status.info(messages.invite);
 });
 
+// Toolbar 'open file' button click
+ui.toolbar.openFile.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function () {
+        startFromFile(file, reader.result);
+    };
+    reader.readAsArrayBuffer(file);
+});
+
 // Toolbar 'open url' button click
-ui.openUrl.addEventListener("click", () => {
+ui.toolbar.openUrl.addEventListener("click", () => {
     const url = prompt("Enter database file URL:", "https://path/to/database");
     startFromUrl(url);
 });
 
 // Toolbar 'save' button click
-ui.save.addEventListener("click", () => {
+ui.toolbar.save.addEventListener("click", () => {
     save();
 });
 

@@ -5,6 +5,7 @@ const ID_PREFIX = "gist:";
 // Database path, could be:
 // - local (../data.db),
 // - remote (https://domain.com/data.db)
+// - binary (binary database content)
 // - id (gist:02994fe7f2de0611726d61dbf26f46e4)
 // - empty
 class DatabasePath {
@@ -17,6 +18,9 @@ class DatabasePath {
     inferType(value) {
         if (!value) {
             return "empty";
+        }
+        if (value instanceof ArrayBuffer) {
+            return "binary";
         }
         if (value.startsWith("http://") || value.startsWith("https://")) {
             return "remote";
@@ -46,6 +50,8 @@ class DatabasePath {
     toString() {
         if (this.type == "local" || this.type == "remote") {
             return `URL ${this.value}`;
+        } else if (this.type == "binary") {
+            return `binary (${this.value.byteLength} bytes)`;
         } else if (this.type == "id") {
             return `ID ${this.value}`;
         } else {
@@ -55,7 +61,7 @@ class DatabasePath {
 }
 
 function name(path) {
-    if (path.type == "empty" || path.type == "id") {
+    if (["binary", "id", "empty"].includes(path.type)) {
         return "";
     }
     const parts = path.value.split("/");

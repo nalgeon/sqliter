@@ -13,10 +13,7 @@ function save(database, sql) {
 // and sets it as a value for the specified element
 function load(database, el) {
     const sql = localStorage.getItem(`${database}.sql`);
-    if (!sql) {
-        return;
-    }
-    el.value = sql;
+    el.value = sql || "";
 }
 
 const storage = { save, load };

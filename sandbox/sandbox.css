@@ -37,6 +37,15 @@ body {
     vertical-align: middle;
     height: 1.5rem;
 }
+.toolbar label {
+    display: inline-block;
+    vertical-align: middle;
+    height: 1.5rem;
+    line-height: 1.25rem;
+}
+.toolbar input[type="file"] {
+    display: none;
+}
 .toolbar a {
     display: inline-block;
     vertical-align: middle;
