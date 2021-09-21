@@ -33,6 +33,10 @@ body {
 
 .toolbar {
 }
+.toolbar button {
+    vertical-align: middle;
+    height: 1.5rem;
+}
 .toolbar a {
     display: inline-block;
     vertical-align: middle;
@@ -119,6 +123,10 @@ body {
 .button-small:hover {
     background: #008bf5;
     color: #fff;
+}
+
+.hidden {
+    display: none !important;
 }
 
 @media only screen and (min-width: 48em) {
