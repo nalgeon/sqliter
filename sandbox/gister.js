@@ -1,12 +1,14 @@
 // Github Gist API client
 
+const HEADERS = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+};
+
 class Gister {
     constructor() {
         this.url = "https://api.github.com/gists";
-        this.headers = {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-        };
+        this.headers = Object.assign({}, HEADERS);
     }
 
     loadCredentials() {
@@ -20,8 +22,16 @@ class Gister {
         return `https://gist.github.com/${this.username}/${id}`;
     }
 
+    get(id) {
+        const promise = fetch(`${this.url}/${id}`, {
+            method: "get",
+            headers: HEADERS,
+        }).then((response) => response.json());
+        return promise;
+    }
+
     create(name, schema, query) {
-        const data = buildData(schema, query);
+        const data = buildData(name, schema, query);
         const promise = fetch(this.url, {
             method: "post",
             headers: this.headers,
@@ -30,8 +40,8 @@ class Gister {
         return promise;
     }
 
-    update(id, schema, query) {
-        const data = buildData(schema, query);
+    update(id, name, schema, query) {
+        const data = buildData(name, schema, query);
         const promise = fetch(`${this.url}/${id}`, {
             method: "post",
             headers: this.headers,
@@ -41,8 +51,9 @@ class Gister {
     }
 }
 
-function buildData(schema, query) {
+function buildData(name, schema, query) {
     return {
+        description: name,
         files: {
             "schema.sql": {
                 content: schema,

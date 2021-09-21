@@ -24,6 +24,8 @@ const ui = {
     result: document.querySelector("#result"),
 };
 
+const ID_PREFIX = "gist:";
+
 let database;
 
 // startFromUrl loads existing database or creates a new one
@@ -31,11 +33,25 @@ let database;
 async function startFromUrl() {
     const name = sqlite.loadName() || "new.db";
     let path = sqlite.loadPath();
-    if (path && !path.startsWith("https://")) {
+    if (path && !path.startsWith("https://") && !path.startsWith(ID_PREFIX)) {
         // local databases are located one level up
         path = `../${path}`;
     }
-    start(name, path);
+    if (path && path.startsWith(ID_PREFIX)) {
+        const id = path.substr(ID_PREFIX.length);
+        startFromId(id);
+    } else {
+        start(name, path);
+    }
+}
+
+async function startFromId(id) {
+    const gist = await gister.get(id);
+    const name = gist.description;
+    await start(name, null);
+    database.id = id;
+    database.execute(gist.files["schema.sql"].content);
+    ui.editor.value = gist.files["query.sql"].content;
 }
 
 // start loads existing database or creates a new one
@@ -99,6 +115,15 @@ function showError(exc) {
     ui.status.error(err);
 }
 
+function showSaved(id) {
+    const url = gister.getUrl(id);
+    const gistUrl = `<a href="${url}" target="_blank">gist</a>`;
+    history.pushState(id, null, `#${ID_PREFIX}${id}`);
+    const shareUrl = `<copy-on-click href="${window.location}" class="button-small">
+        copy share link</copy-on-click>`;
+    ui.status.success(`Saved as ${gistUrl} ${shareUrl}`);
+}
+
 // Toolbar 'run sql' button click
 ui.execute.addEventListener("click", () => {
     execute(ui.editor.value);
@@ -113,10 +138,7 @@ ui.clear.addEventListener("click", () => {
 
 // Toolbar 'open url' button click
 ui.openUrl.addEventListener("click", () => {
-    const path = prompt(
-        "Enter database file URL:",
-        "https://raw.githubusercontent.com/username/repo/branch/..."
-    );
+    const path = prompt("Enter database file URL:", "https://path/to/database");
     const parts = path.split("/");
     const name = parts[parts.length - 1];
     start(name, path).then((success) => {
@@ -129,18 +151,19 @@ ui.openUrl.addEventListener("click", () => {
 
 // Toolbar 'save' button click
 ui.save.addEventListener("click", () => {
+    ui.status.info("Saving...");
+    ui.result.clear();
     const schema = dumper.toSql(database, ui.editor.value);
     const query = ui.editor.value;
     let promise;
     if (!database.id) {
         promise = gister.create(database.name, schema, query);
     } else {
-        promise = gister.update(database.id, schema, query);
+        promise = gister.update(database.id, database.name, schema, query);
     }
     promise.then((resp) => {
         database.id = resp.id;
-        const url = gister.getUrl(database.id);
-        ui.status.success(`Saved to ${url}`);
+        showSaved(database.id);
     });
 });
 

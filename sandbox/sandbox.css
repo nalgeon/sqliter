@@ -33,19 +33,6 @@ body {
 
 .toolbar {
 }
-.toolbar button {
-    border: 1px solid #008bf5;
-    border-radius: 0.125rem;
-    background: #fff;
-    padding: 0.125em 0.25rem;
-    color: #008bf5;
-    cursor: pointer;
-    font-size: 80%;
-}
-.toolbar button:hover {
-    background: #008bf5;
-    color: #fff;
-}
 .toolbar a {
     display: inline-block;
     vertical-align: middle;
@@ -118,6 +105,20 @@ body {
 }
 .sql-result table td {
     padding: 0.25rem 0.5rem;
+}
+
+.button-small {
+    border: 1px solid #008bf5;
+    border-radius: 0.125rem;
+    background: #fff;
+    padding: 0.125em 0.25rem;
+    color: #008bf5;
+    cursor: pointer;
+    font-size: 80%;
+}
+.button-small:hover {
+    background: #008bf5;
+    color: #fff;
 }
 
 @media only screen and (min-width: 48em) {

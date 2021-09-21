@@ -16,10 +16,10 @@
             <strong>🍋 SQLite Sandbox</strong> //
             <strong id="db-name">loading...</strong>
             <div class="toolbar">
-                <button id="execute">run sql</button>
-                <button id="clear">clear</button>
-                <button id="open-url">open url</button>
-                <button id="save" style="display: none;">save</button>
+                <button id="execute" class="button-small">run sql</button>
+                <button id="clear" class="button-small">clear</button>
+                <button id="open-url" class="button-small">open url</button>
+                <button id="save" class="button-small">save</button>
                 <!-- <a href="about.html">?</a> -->
             </div>
         </header>
@@ -32,6 +32,7 @@
         </section>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/sql-wasm.js"></script>
+    <script type="module" src="copy-link.js"></script>
     <script type="module" src="sql-editor.js"></script>
     <script type="module" src="sql-status.js"></script>
     <script type="module" src="sql-result.js"></script>
