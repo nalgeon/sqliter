@@ -143,6 +143,10 @@ body {
     color: #008bf5;
 }
 
+.link-img {
+    text-decoration: none !important;
+}
+
 .hidden {
     display: none !important;
 }
