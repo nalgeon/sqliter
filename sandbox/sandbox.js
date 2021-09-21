@@ -184,6 +184,9 @@ ui.toolbar.clear.addEventListener("click", () => {
 
 // Toolbar 'open file' button click
 ui.toolbar.openFile.addEventListener("change", (event) => {
+    if (!event.target.files.length) {
+        return;
+    }
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onload = function () {
@@ -195,6 +198,9 @@ ui.toolbar.openFile.addEventListener("change", (event) => {
 // Toolbar 'open url' button click
 ui.toolbar.openUrl.addEventListener("click", () => {
     const url = prompt("Enter database file URL:", "https://path/to/database");
+    if (!url) {
+        return;
+    }
     startFromUrl(url);
 });
 
