@@ -63,6 +63,7 @@ async function loadGist(path) {
     const db = new SQL.Database();
     const database = new SQLite(gist.description, path, db);
     database.id = path.value;
+    database.owner = gist.owner.login;
     database.execute(gist.files["schema.sql"].content);
     database.query = gist.files["query.sql"].content;
     return database;
@@ -73,7 +74,7 @@ async function save(database, query) {
     const schema = dumper.toSql(database, query);
     database.query = query;
     let promise;
-    if (!database.id) {
+    if (!database.id || database.owner != gister.username) {
         promise = gister.create(database.name, schema, database.query);
     } else {
         promise = gister.update(
@@ -88,6 +89,7 @@ async function save(database, query) {
             return null;
         }
         database.id = response.id;
+        database.owner = response.owner.login;
         database.path.type = "id";
         database.path.value = database.id;
         return database;
@@ -98,6 +100,7 @@ async function save(database, query) {
 class SQLite {
     constructor(name, path, db) {
         this.id = null;
+        this.owner = null;
         this.name = name;
         this.path = path;
         this.db = db;
