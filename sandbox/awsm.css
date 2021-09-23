@@ -96,9 +96,6 @@ ol li > details {
 
 p {
     margin: 1em 0;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
 }
 p:first-child {
     margin-top: 0;
