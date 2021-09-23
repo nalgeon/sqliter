@@ -1,5 +1,6 @@
 import dumper from "./dumper.js";
 import gister from "./gister.js";
+import hasher from "./hasher.js";
 
 const WASM =
     "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.1/sql-wasm.wasm";
@@ -66,6 +67,7 @@ async function loadGist(path) {
     database.owner = gist.owner.login;
     database.execute(gist.files["schema.sql"].content);
     database.query = gist.files["query.sql"].content;
+    database.hashcode = database.calcHashcode();
     return database;
 }
 
@@ -73,10 +75,17 @@ async function loadGist(path) {
 async function save(database, query) {
     const schema = dumper.toSql(database, query);
     database.query = query;
+    const hashcode = database.calcHashcode();
     let promise;
     if (!database.id || database.owner != gister.username) {
         promise = gister.create(database.name, schema, database.query);
     } else {
+        // do not update gist if nothing has changed
+        if (hashcode == database.hashcode) {
+            return new Promise((resolve, reject) => {
+                resolve(database);
+            });
+        }
         promise = gister.update(
             database.id,
             database.name,
@@ -90,6 +99,7 @@ async function save(database, query) {
         }
         database.id = response.id;
         database.owner = response.owner.login;
+        database.hashcode = hashcode;
         database.path.type = "id";
         database.path.value = database.id;
         return database;
@@ -101,6 +111,7 @@ class SQLite {
     constructor(name, path, db) {
         this.id = null;
         this.owner = null;
+        this.hashcode = 0;
         this.name = name;
         this.path = path;
         this.db = db;
@@ -122,6 +133,13 @@ class SQLite {
     // and invokes callback on each of the resulting rows
     each(sql, callback) {
         this.db.each(sql, [], callback);
+    }
+
+    calcHashcode() {
+        const dbArr = this.db.export();
+        const dbHash = hasher.uint8Array(dbArr);
+        const queryHash = hasher.string(this.query);
+        return dbHash & queryHash;
     }
 }
 

@@ -71,7 +71,7 @@ async function start(name, path) {
     ui.status.info(messages.loading);
 
     const loadedDatabase = await sqlite.init(name, path);
-    console.log(loadedDatabase);
+    console.debug(loadedDatabase);
     if (!loadedDatabase) {
         ui.status.error(`Failed to load database from ${path}`);
         return false;
