@@ -2,7 +2,7 @@
 
 const SCHEMA_SQL = `
 select "name", "type", "sql"
-from "sqlite_master"
+from "sqlite_schema"
 where "sql" not null
   and "type" == 'table'
 order by "name"
@@ -38,13 +38,13 @@ function schemaItemToSql(item) {
     if (item.name == "sqlite_sequence") {
         return 'DELETE FROM "sqlite_sequence";';
     } else if (item.name == "sqlite_stat1") {
-        return 'ANALYZE "sqlite_master";';
+        return 'ANALYZE "sqlite_schema";';
     } else if (item.name.startsWith("sqlite_")) {
         return "";
     } else if (item.sql.startsWith("CREATE VIRTUAL TABLE")) {
         const qtable = item.name.replace("'", "''");
-        return `INSERT INTO sqlite_master(type,name,tbl_name,rootpage,sql)
-            "VALUES('table','${qtable}','${qtable}',0,'${item.sql}');`;
+        return `INSERT INTO sqlite_schema(type,name,tbl_name,rootpage,sql)
+            VALUES('table','${qtable}','${qtable}',0,'${item.sql}');`;
     } else if (item.sql.toUpperCase().startsWith(CREATE_TABLE_PREFIX)) {
         const qtable = item.sql.substr(CREATE_TABLE_PREFIX.length);
         return `CREATE TABLE IF NOT EXISTS ${qtable};`;
